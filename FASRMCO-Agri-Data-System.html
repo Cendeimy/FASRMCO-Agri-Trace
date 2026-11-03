@@ -1399,6 +1399,61 @@
             });
         }
 
+        // --- FIXED EXCEL EXPORT & PRINT FUNCTIONS ---
+        function exportTableToExcel() {
+            if (typeof XLSX === 'undefined') {
+                alert("Ang Excel library wala pa na-load. Palihog i-check ang imong internet connection.");
+                return;
+            }
+            
+            let wb = XLSX.utils.book_new();
+            
+            // Export Members Table if visible
+            let memberTable = document.getElementById('memberExportTable');
+            if (memberTable && memberTable.offsetParent !== null) {
+                let wsMembers = XLSX.utils.table_to_sheet(memberTable);
+                XLSX.utils.book_append_sheet(wb, wsMembers, "Members Report");
+            }
+            
+            // Export Transactions Table if visible
+            let transTable = document.getElementById('transExportTable');
+            if (transTable && transTable.offsetParent !== null) {
+                let wsTrans = XLSX.utils.table_to_sheet(transTable);
+                XLSX.utils.book_append_sheet(wb, wsTrans, "Transactions Report");
+            }
+
+            // Fallback kung walay table nga active
+            if (wb.SheetNames.length === 0) {
+                alert("Walay aktibong table nga makit-an para ma-export.");
+                return;
+            }
+
+            let fileName = "FASRMCO_Agri_Report_" + new Date().toISOString().slice(0, 10) + ".xlsx";
+            XLSX.writeFile(wb, fileName);
+        }
+
+        function openPrintModal() {
+            let modalEl = document.getElementById('printModal');
+            if (modalEl && typeof bootstrap !== 'undefined') {
+                let myModal = new bootstrap.Modal(modalEl);
+                myModal.show();
+            } else {
+                // Fallback direct print kung adunay issue sa modal script
+                window.print();
+            }
+        }
+
+        function executePrint() {
+            let printModalEl = document.getElementById('printModal');
+            let modalInstance = bootstrap.Modal.getInstance(printModalEl);
+            if (modalInstance) {
+                modalInstance.hide();
+            }
+            setTimeout(() => {
+                window.print();
+            }, 300);
+        }
+
         applyAuthMode();
         fetchFirebaseData();
     </script>
